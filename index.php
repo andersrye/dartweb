@@ -6,8 +6,8 @@ $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cu
 ?>
 <script src="jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
-//var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
-var socket = new WebSocket("ws://localhost:8080/dartbot");
+var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
+//var socket = new WebSocket("ws://localhost:8080/dartbot");
 
 function div(id, className, content) {
 	return "<div id=\"" + id + "\" class=\"" + className + "\">" + content + "</div>";
@@ -80,7 +80,21 @@ socket.onmessage = function(event) {
 				currclass = " current";
 			};
 			insertInto(gid+"-players", div(gid+"-player"+p, 'player'.concat(currclass), p) + div("_", "score".concat(currclass), score));
+			var currscore = 0
 			for (var r in player.history) {
+				console.log(currscore+totalScore(player.history[r]));
+				if (currscore+totalScore(player.history[r]) == 301) 
+				{
+					currclass=" win";
+				}
+				else if (currscore+totalScore(player.history[r]) > 301) 
+				{
+					currclass=" bust";
+				}
+				else
+				{
+					currscore += totalScore(player.history[r]);
+				}
 				insertInto(gid+"-players", div("_", "throws".concat(currclass), totalScore(player.history[r]) + "<br>"));
 			}
 			if (game.currentplayer == p) {
@@ -175,14 +189,18 @@ function newGame() {
 		background-color: #aac;
 
 	}
+	.bust {
+		background-color: red;
+	}
+	.win {
+		background-color: green;
+	}
 	.clear {
 		clear: both;
 	}
 }
 
 </style>
-
-<!--
 
 <pre>
 Board monitor: <?php 
@@ -216,7 +234,7 @@ default:
 //echo $printout;
 ?>
 </pre>
--->
+
 
 <div id="world" class="world">something is wrong, check the console</div>
 Players: <input id="playerbox" type="text" name="fname"/> <button onclick='newGame()'>Start new game</button>
