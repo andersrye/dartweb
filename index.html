@@ -91,7 +91,8 @@ socket.onmessage = function(event) {
 
 		}
 		console.log(gid);
-		insertInto(gid, "<button onclick='nextPlayer(\"" + gid + "\")'>Next player</button><br/>");
+		insertInto(gid, "<button onclick='nextPlayer(\"" + gid + "\")'>Next player</button>");
+		insertInto(gid, "<button onclick='deleteGame(\"" + gid + "\")'>Delete game</button>");
 		insertInto(gid, "<div class=\"clear\"> </div>");
 
 
@@ -109,7 +110,20 @@ function nextPlayer(gid) {
 }
 
 function deleteGame(gid) {
-	socket.send("{\"command\" : \"delete\", \"gid\" : \"" + gid + "\"}")
+	if (confirm("Are you sure you want to delete the game? (" + gid + ")")) {
+	  socket.send("{\"command\" : \"delete\", \"gid\" : \"" + gid + "\"}")
+	}
+}
+function newGame() {
+	players = document.getElementById("playerbox").value.split(" ");
+	var temp = "";
+	for(var p in players) {
+		temp += "\"" + players[p] + "\"";
+		if(p < players.length-1) temp += ",";
+	}
+	var timestamp = Math.floor(new Date().getTime()/1000); 
+	socket.send("{\"command\" : \"start\", \"gid\" : \"gid" + timestamp + "\", \"payload\" : {\"timestamp\" : \"" + timestamp + "\", \"bid\" : \"bid1\", \"rules\" : \"301\", \"players\" : [" + temp + "]}}")
+
 }
 </script>
 
@@ -122,7 +136,7 @@ function deleteGame(gid) {
 		margin-bottom: 20px;
 		background-color: #eee;
 		border: 2px solid #ccc;
-		float:left;
+		//float:left;
 	}
 	.game-id {
 		background-color: #99b;
@@ -205,3 +219,4 @@ default:
 -->
 
 <div id="world" class="world">something is wrong, check the console</div>
+Players: <input id="playerbox" type="text" name="fname"/> <button onclick='newGame()'>Start new game</button>
