@@ -6,8 +6,18 @@ $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cu
 ?>
 <script src="jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
-//var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
-var socket = new WebSocket("ws://localhost:8080/dartbot");
+var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
+//var socket = new WebSocket("ws://localhost:8080/dartbot");
+
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+
+var getGid = getUrlVars()["gid"];
 
 function div(id, className, content) {
 	return "<div id=\"" + id + "\" class=\"" + className + "\">" + content + "</div>";
@@ -64,17 +74,24 @@ socket.onmessage = function(event) {
 	console.log(world);
 	insertInto("world", "");
 	for (var gid in world) {
-		var game = world[gid]
+		console.log(getGid);
+		console.log(gid);
+		if (typeof(getGid) != 'undefined' && getGid != gid) continue;
+		var game = world[gid];
 		insertInto("world", div(gid, "game", ""));
 
-		insertInto(gid, div(gid+"-gid", "game-id", "Game: " + gid + ", Board: " + game.boards + ", Time: " + formatTime(game.timestamp)))
+		insertInto(gid, div(gid+"-gid", "game-id", "&nbsp; Game: <a href='/?gid=" + gid + "'>" + gid + "</a>, Board: " + game.boards + ", Time: " + formatTime(game.timestamp)))
+		if(game.currentplayer != null) {
+			insertInto(gid, div(gid+"-remaining", "remaining", div("_", "remainingtitle", "Remaining: ") + div(gid+"-remainingscore", "remainingscore", game.players[game.currentplayer].score - totalScore(game.currentthrows))))
+			console.log(game.players);
+			console.log(game.currentplayer);
+			console.log(game.players["ary"]);
+			//insertInto(gid, div(gid+"-currenttotal", "currenttotal", totalScore(game.currentthrows)))
 
-		insertInto(gid, div(gid+"-currenttotal", "currenttotal", totalScore(game.currentthrows)))
+			insertInto(gid, div(gid+"-currentplayer", "cplayer", "Player:<br/>" + div("_", "cplayerplayer", game.currentplayer)))
 
-		insertInto(gid, div(gid+"-currentplayer", "cplayer", "Player:<br/>" + div("_", "cplayerplayer", game.currentplayer)))
-
-		insertInto(gid, div(gid+"-currentthrows", "cthrows", "Throws:<br/>" + formatThrows(game.currentthrows)))
-		//insertInto(gid+"-currentthrows", );
+			insertInto(gid, div(gid+"-currentthrows", "cthrows", "Throws:<br/>" + formatThrows(game.currentthrows)))
+		}//insertInto(gid+"-currentthrows", );
 
 		//insertInto(gid, div(gid+"-board", "board", "boards: " + game.boards));
 
@@ -119,11 +136,13 @@ socket.onmessage = function(event) {
 				var class3 = "";
 				if (score == 0) {
 					class3=" win";
-					document.getElementById(gid+"-currenttotal").className += " win"; 
+					document.getElementById(gid+"-remaining").className += " win"; 
+					document.getElementById(gid+"-remainingscore").innerHTML = "WIN"; 
 				} else if (score < 0) {
 					class3=" bust";
-					document.getElementById(gid+"-currenttotal").className += " bust";
-				}
+					document.getElementById(gid+"-remaining").className += " bust";
+					document.getElementById(gid+"-remainingscore").innerHTML = "BUST"; 
+		}
 				insertInto(gid+"-players", div("_", "throws currentthrows current".concat(class3), totalScore(game.currentthrows) + "<br>"));
 			}
 			insertInto(gid, "<div class=\"clear\"></div>");
@@ -131,11 +150,12 @@ socket.onmessage = function(event) {
 
 		}
 		console.log(gid);
-		insertInto(gid, "<button class='left' onclick='nextPlayer(\"" + gid + "\")'>Next player</button>");
 		insertInto(gid, "<button class='right' onclick='endGame(\"" + gid + "\")'>End game</button>");
 		insertInto(gid, "<button class='right' onclick='deleteGame(\"" + gid + "\")'>Delete game</button>");
-		insertInto(gid, "<button class='right' onclick='addThrow()'>Random throw</button>");
-
+		if(game.currentplayer != null) {
+			insertInto(gid, "<button class='left' onclick='nextPlayer(\"" + gid + "\")'>Next player</button>");
+			insertInto(gid, "<button class='right' onclick='addThrow()'>Random throw</button>");
+		}
 		insertInto(gid, "<div class=\"clear\"> </div>");
 
 
@@ -190,10 +210,16 @@ function addThrow() {
 </script>
 
 <style>
+	a {
+		color: #000;
+		text-decoration: none;
+		border-bottom: 1px dashed;
+	}
 	.world {
 		/*width: 660px;*/
 		font-family: "Trebuchet MS", Helvetica, sans-serif;
 	}
+
 	.game {
 		margin-bottom: 20px;
 		background-color: #eee;
@@ -202,14 +228,21 @@ function addThrow() {
 	}
 	.game-id {
 		background-color: #99b;
+		height: 27px;
+		padding-top: 3px;
+		/*vertical-align: middle;*/
 	}
-	.currenttotal {
+	.remaining {
 		background-color: #ddd;
 		float: right;
-		font-size: 60pt;
-		width: 130px;
-		height: 100px;
-		text-align: center;
+		font-size: 38pt;
+		width: 120px;
+		height: 90px;
+		padding:5px
+		/*text-align: center;*/
+	}
+	.remainingtitle {
+		font-size: 12pt;
 	}
 	.player {
 		clear: both;
@@ -276,7 +309,6 @@ function addThrow() {
 	.current {
 		background-color: #bbc;
 		opacity: 1.0;
-	
 	}
 	.currentthrows {
 		background-color: #aac;
@@ -301,7 +333,9 @@ function addThrow() {
 }
 
 </style>
-<!--
+<div id="world" class="world">something is wrong, check the console</div>
+Players: <input id="playerbox" type="text" name="fname"/> <button onclick='newGame()'>Start new game</button> <a href="/remote">Remote</a>
+
 <pre>
 Board monitor: <?php 
 switch ($boardmon_status) {
@@ -316,7 +350,7 @@ default:
 	break;
 }
 ?>
-Dartbot: <?php
+  |  Dartbot: <?php
 switch ($dartbot_status) {
 case 0:
 	echo "<span style='background-color: #FF0000'>OFFLINE</span>";
@@ -333,7 +367,5 @@ default:
 //echo $printout;
 ?>
 </pre>
--->
 
-<div id="world" class="world">something is wrong, check the console</div>
-Players: <input id="playerbox" type="text" name="fname"/> <button onclick='newGame()'>Start new game</button>
+
