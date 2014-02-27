@@ -109,15 +109,15 @@ function finalStandings(game) {
 }
 
 function formatStats(game) {
-	temp = "Standings: <br/>";
+	var temp = "Results: <br/>";
 	standings = finalStandings(game);
-	for (var i; i<standings.length; i++) {
-		temp += i + ". " + standings[i][0] + "<br/>" 
-	} 
+	for (var i = 0; i<standings.length; i++) {
+		temp += (i+1) + ". " + standings[i][0] + "<br/>";
+	}
 	bestround = bestRound(game.players);
 	bestfinish = bestFinish(game.players);
-	temp += "<br/> Best round: " +  bestround[0] + "(" + bestround[1] + ")"
-	temp += "<br/> Best finish: " +  bestfinish[0] + "(" + bestfinish[1] + ")"
+	temp += "<br/>Best round: " +  bestround[0] + " (" + bestround[1] + ")"
+	temp += "<br/>Best finish: " +  bestfinish[0] + " (" + bestfinish[1] + ")"
 	return temp
 }
 
@@ -138,7 +138,7 @@ socket.onmessage = function(event) {
 		insertInto("world", div(gid, "game", ""));
 
 		insertInto(gid, div(gid+"-gid", "game-id", "&nbsp; Game: <a href='/?gid=" + gid + "'>" + gid + "</a>, Board: " + game.boards + ", Time: " + formatTime(game.timestamp)))
-		
+
 		if(game.currentplayer != null) {
 			insertInto(gid, div(gid+"-remaining", "remaining", div("_", "remainingtitle", "Remaining: ") + div(gid+"-remainingscore", "remainingscore", game.players[game.currentplayer].score - totalScore(game.currentthrows))))
 
@@ -208,7 +208,7 @@ socket.onmessage = function(event) {
 			insertInto(gid, "<button class='right' onclick='addThrow()'>Random throw</button>");
 		}
 		insertInto(gid, "<div class=\"clear\"> </div>");
-		if(game.currentplayer == null && typeof(getGid)) != undefined {
+		if(game.currentplayer == null && typeof(getGid) != 'undefined') {
 			insertInto("world", div("stats", "stats", "<pre>" + formatStats(game) + "</pre>"))
 		}
 
