@@ -6,8 +6,10 @@ $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cu
 ?>
 <script src="jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
+
 var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
 //var socket = new WebSocket("ws://localhost:8080/dartbot");
+var getGid = getUrlVars()["gid"];
 
 function getUrlVars() {
     var vars = {};
@@ -17,7 +19,7 @@ function getUrlVars() {
     return vars;
 }
 
-var getGid = getUrlVars()["gid"];
+
 
 function div(id, className, content) {
 	return "<div id=\"" + id + "\" class=\"" + className + "\">" + content + "</div>";
@@ -64,6 +66,61 @@ function longestPlayerHistory(game) {
 	return l+1;
 }
 
+
+function bestFinish(players) {
+	var temp = ["", 0];
+	for(var p in players) {
+		if(players[p].score == 0) {
+			var fnsh = totalScore(players[p].history[players[p].history.length-1]);
+			if (fnsh > temp[1]) {
+				temp[0] = p;
+				temp[1] = fnsh;
+			}
+		}
+	}
+	return temp;
+}
+function bestRound(players) {
+	var temp = ["", 0];
+	for(var p in players) {
+		for(var round in players[p].history) {
+			var rsc = totalScore(players[p].history[round])
+			if ( rsc > temp[1]) {
+				temp[0] = p;
+				temp[1] = rsc;
+			}
+		}
+	}
+	return temp;
+}
+
+function finalStandings(game) {
+	var temp = new Array();
+	var rest = new Array();
+	for (var p in game.players) {
+		var pos = game.players[p].position
+		if(pos != null) {
+			temp[pos-1] = [p,0];
+		} else {
+			rest.push([p,game.players[p].score])
+		}
+	}
+	return temp.concat(rest.sort(function(a, b){return a[1]-b[1];})); 
+}
+
+function formatStats(game) {
+	temp = "Standings: <br/>";
+	standings = finalStandings(game);
+	for (var i; i<standings.length; i++) {
+		temp += i + ". " + standings[i][0] + "<br/>" 
+	} 
+	bestround = bestRound(game.players);
+	bestfinish = bestFinish(game.players);
+	temp += "<br/> Best round: " +  bestround[0] + "(" + bestround[1] + ")"
+	temp += "<br/> Best finish: " +  bestfinish[0] + "(" + bestfinish[1] + ")"
+	return temp
+}
+
 socket.onmessage = function(event) {
 	console.log("starting")
 	if(event.data == "{}"){
@@ -81,22 +138,16 @@ socket.onmessage = function(event) {
 		insertInto("world", div(gid, "game", ""));
 
 		insertInto(gid, div(gid+"-gid", "game-id", "&nbsp; Game: <a href='/?gid=" + gid + "'>" + gid + "</a>, Board: " + game.boards + ", Time: " + formatTime(game.timestamp)))
+		
 		if(game.currentplayer != null) {
 			insertInto(gid, div(gid+"-remaining", "remaining", div("_", "remainingtitle", "Remaining: ") + div(gid+"-remainingscore", "remainingscore", game.players[game.currentplayer].score - totalScore(game.currentthrows))))
-			console.log(game.players);
-			console.log(game.currentplayer);
-			console.log(game.players["ary"]);
+
 			//insertInto(gid, div(gid+"-currenttotal", "currenttotal", totalScore(game.currentthrows)))
 
 			insertInto(gid, div(gid+"-currentplayer", "cplayer", "Player:<br/>" + div("_", "cplayerplayer", game.currentplayer)))
 
 			insertInto(gid, div(gid+"-currentthrows", "cthrows", "Throws:<br/>" + formatThrows(game.currentthrows)))
-		}//insertInto(gid+"-currentthrows", );
-
-		//insertInto(gid, div(gid+"-board", "board", "boards: " + game.boards));
-
-		//insertInto(gid, div(gid+"-timestamp", "time", "time: " + formatTime(game.timestamp)));
-		var players = "";
+		}
 
 		insertInto(gid, div(gid+"-players", "players", ""));
 		insertInto(gid+"-players", div(gid+"-player"+p, "player", "plr") + div("_", "score", "Score"));
@@ -157,6 +208,10 @@ socket.onmessage = function(event) {
 			insertInto(gid, "<button class='right' onclick='addThrow()'>Random throw</button>");
 		}
 		insertInto(gid, "<div class=\"clear\"> </div>");
+		if(game.currentplayer == null && typeof(getGid)) != undefined {
+			insertInto("world", div("stats", "stats", "<pre>" + formatStats(game) + "</pre>"))
+		}
+
 
 
 
