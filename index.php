@@ -4,11 +4,10 @@ $dartbot_status = intval(shell_exec("ps aux | grep -c '[d]artbot'"));
 $printout = shell_exec("cat /home/pi/dartbot/print-output.txt");
 $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1");
 ?>
-<script src="jquery-2.1.0.min.js"></script>
 <script type="text/javascript">
 
-var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
-//var socket = new WebSocket("ws://localhost:8080/dartbot");
+//var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
+var socket = new WebSocket("ws://localhost:8080/dartbot");
 var getGid = getUrlVars()["gid"];
 
 function getUrlVars() {
@@ -18,8 +17,6 @@ function getUrlVars() {
     });
     return vars;
 }
-
-
 
 function div(id, className, content) {
 	return "<div id=\"" + id + "\" class=\"" + className + "\">" + content + "</div>";
@@ -122,22 +119,18 @@ function formatStats(game) {
 }
 
 socket.onmessage = function(event) {
-	console.log("starting")
 	if(event.data == "{}"){
 		document.getElementById("world").innerHTML = "No games";
 		return;
 	}
 	var world = JSON.parse(event.data);
-	console.log(world);
 	insertInto("world", "");
 	for (var gid in world) {
-		console.log(getGid);
-		console.log(gid);
 		if (typeof(getGid) != 'undefined' && getGid != gid) continue;
 		var game = world[gid];
 		insertInto("world", div(gid, "game", ""));
 
-		insertInto(gid, div(gid+"-gid", "game-id", "&nbsp; Game: <a href='/?gid=" + gid + "'>" + gid + "</a>, Board: " + game.boards + ", Time: " + formatTime(game.timestamp)))
+		insertInto(gid, div(gid+"-gid", "game-id", "&nbsp; Game: <a href='?gid=" + gid + "'>" + gid + "</a>, Board: " + game.boards + ", Time: " + formatTime(game.timestamp)))
 
 		if(game.currentplayer != null) {
 			insertInto(gid, div(gid+"-remaining", "remaining", div("_", "remainingtitle", "Remaining: ") + div(gid+"-remainingscore", "remainingscore", game.players[game.currentplayer].score - totalScore(game.currentthrows))))
@@ -200,7 +193,6 @@ socket.onmessage = function(event) {
 
 
 		}
-		console.log(gid);
 		insertInto(gid, "<button class='right' onclick='endGame(\"" + gid + "\")'>End game</button>");
 		insertInto(gid, "<button class='right' onclick='deleteGame(\"" + gid + "\")'>Delete game</button>");
 		if(game.currentplayer != null) {
@@ -211,11 +203,6 @@ socket.onmessage = function(event) {
 		if(game.currentplayer == null && typeof(getGid) != 'undefined') {
 			insertInto("world", div("stats", "stats", "<pre>" + formatStats(game) + "</pre>"))
 		}
-
-
-
-
-
 	}
 }
 
@@ -224,22 +211,22 @@ function randInt(min, max) {
 }
 
 socket.onopen = function(event) {
-	socket.send('{"command" : "request"}');
+	socket.send('{"command" : "request", "game" : "all", "update" : "messages"}');
 }
 
 function nextPlayer(gid) {
-	socket.send("{\"command\" : \"next\", \"gid\" : \"" + gid + "\", \"payload\" : {\"timestamp\" : 1391449631516}}")
+	socket.send('{"command" : "next", "gid" : "' + gid + '", "payload" : {"timestamp" : 1391449631516}}')
 }
 
 function deleteGame(gid) {
 	if (confirm("Are you sure you want to delete the game? (" + gid + ")")) {
-	  socket.send("{\"command\" : \"delete\", \"gid\" : \"" + gid + "\"}")
+	  socket.send('{"command" : "delete", "gid" : "' + gid + '"}')
 	}
 }
 
 function endGame(gid) {
 	if (confirm("Are you sure you want to upload and end the game? (" + gid + ")")) {
-	  socket.send("{\"command\" : \"end\", \"gid\" : \"" + gid + "\"}")
+	  socket.send('{"command" : "end", "gid" : "' + gid + '"}')
 	}
 }
 
@@ -251,7 +238,7 @@ function newGame() {
 		if(p < players.length-1) temp += ",";
 	}
 	var timestamp = Math.floor(new Date().getTime()/1000); 
-	socket.send("{\"command\" : \"start\", \"gid\" : \"gid" + timestamp + "\", \"payload\" : {\"timestamp\" : " + timestamp + ", \"bid\" : \"bid1\", \"rules\" : \"301\", \"players\" : [" + temp + "]}}")
+	socket.send('{"command" : "start", "gid" : "gid' + timestamp + '", "payload" : {"timestamp" : ' + timestamp + ', "bid" : "bid1", "rules" : "301", "players" : [' + temp + ']}}')
 }
 
 function addThrow() {
@@ -260,7 +247,7 @@ function addThrow() {
 	if (r > 60) mpl = 2;
 	if (r > 85) mpl = 3;
 	var timestamp = Math.floor(new Date().getTime()/1000); 
-	socket.send("{\"command\" : \"throw\", \"bid\" : \"bid1\", \"payload\" : {\"timestamp\" : \"" + timestamp + "\", \"score\" : " + randInt(0, 20) + ", \"multiplier\" : " + mpl + "}}")
+	socket.send('{"command" : "throw", "bid" : "bid1", "payload" : {"timestamp" : ' + timestamp + ', "score" : ' + randInt(0, 20) + ', "multiplier" : ' + mpl + '}}')
 }
 </script>
 
