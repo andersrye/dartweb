@@ -9,6 +9,7 @@ $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cu
 //var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
 var socket = new WebSocket("ws://localhost:8080/dartbot");
 var getGid = getUrlVars()["gid"];
+var world = null;
 
 function getUrlVars() {
     var vars = {};
@@ -29,6 +30,46 @@ function insertInto(id, content) {
 		document.getElementById(id).innerHTML += content;
 	}
 }
+
+function removeNull(array) {
+	var temp = new Array();
+	for (e in array) {
+		if (array[e] != null) {
+			temp.push(array[e]);
+		}
+	}
+	return temp;
+}
+
+var merge = function() {
+    var destination = {},
+        sources = [].slice.call( arguments, 0 );
+    sources.forEach(function( source ) {
+        var prop;
+        for ( prop in source ) {
+            if ( prop in destination && Array.isArray( destination[ prop ] ) ) {
+                // Concat Arrays
+                if(source[prop] == null) {
+                	destination[prop] = [];
+                } else {
+                	destination[ prop ] = removeNull(destination[ prop ].concat( source[ prop ] ));
+                }
+                
+            } else if ( prop in destination && typeof destination[ prop ] === "object" ) {
+                // Merge Objects
+                destination[ prop ] = merge( destination[ prop ], source[ prop ] );
+                
+            } else {
+                console.log(source[prop])
+                
+                // Set new values
+                destination[ prop ] = source[ prop ];
+                
+            }
+        }
+    });
+    return destination;
+};
 
 function formatThrows(thrws) {
 	temp = "";
@@ -123,7 +164,16 @@ socket.onmessage = function(event) {
 		document.getElementById("world").innerHTML = "No games";
 		return;
 	}
-	var world = JSON.parse(event.data);
+	if(JSON.parse(event.data) == null) {
+		requestData();
+		world = null;
+		return;
+	}
+	if(world == null) {
+		world = JSON.parse(event.data);
+	} else {
+		world = merge(world, JSON.parse(event.data));
+	}
 	insertInto("world", "");
 	for (var gid in world) {
 		if (typeof(getGid) != 'undefined' && getGid != gid) continue;
@@ -145,9 +195,9 @@ socket.onmessage = function(event) {
 		insertInto(gid, div(gid+"-players", "players", ""));
 		insertInto(gid+"-players", div(gid+"-player"+p, "player", "plr") + div("_", "score", "Score"));
 		if (longestPlayerHistory(game) > 9) 
-			document.getElementById(gid).setAttribute("style",String("width: " + (longestPlayerHistory(game)*52+134) + "px")) 
+			document.getElementById(gid).setAttribute("style",String("width: " + (longestPlayerHistory(game)*52+120) + "px")) 
 		else
-			document.getElementById(gid).setAttribute("style",String("width: 602px"))  
+			document.getElementById(gid).setAttribute("style",String("width: 594px"))  
 		for (var i=1;i<Math.max(longestPlayerHistory(game)+1, 10);i++) {
 			insertInto(gid+"-players", div("_", "throws", "R " + i));
 		}
@@ -211,7 +261,15 @@ function randInt(min, max) {
 }
 
 socket.onopen = function(event) {
-	socket.send('{"command" : "request", "game" : "all", "update" : "messages"}');
+	requestData()
+}
+
+function requestData() {
+	var gameid = "all";
+	if(typeof(getGid) != 'undefined') {
+		gameid = getGid;
+	}
+	socket.send('{"command" : "request", "game" : "' + gameid + '", "update" : "diff"}');
 }
 
 function nextPlayer(gid) {
