@@ -16,8 +16,6 @@ var gid = getUrlVars()["gid"];
 var bid = getUrlVars()["bid"];
 
 function nextPlayer() {
-	console.log(gid);
-	console.log(bid);
 	if(typeof(gid) != 'undefined') {
 		console.log("sending");
 		socket.send("{\"command\" : \"next\", \"gid\" : \"" + gid + "\", \"payload\" : {\"timestamp\" : 1391449631516}}")
@@ -34,7 +32,7 @@ function nextPlayer() {
 .remoteButton {
 	height: 100%;
 	width: 100%;
-	font-size: 150pt;
+	font-size: 100%;
 }
 </style>
 
