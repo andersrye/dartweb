@@ -89,6 +89,27 @@ function longestPlayerHistory(game) {
 	return l+1;
 }
 
+//STATS:
+
+function countScore(history, score) {
+	var total = 0;
+	for(var r in history) {
+		for (var t in history[r]) {
+			if(history[r][t].score == score) total += 1;
+		}
+	}
+	return total;
+}
+
+function countMult(history, mult) {
+	var total = 0;
+	for(var r in history) {
+		for (var t in history[r]) {
+			if(history[r][t].multiplier == mult) total += 1;
+		}
+	}
+	return total;
+}
 
 function bestFinish(players) {
 	var temp = ["", 0];
