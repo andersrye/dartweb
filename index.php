@@ -9,8 +9,8 @@ $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cu
 <link rel="stylesheet" type="text/css" href="dartweb.css">
 
 <script type="text/javascript">
-//var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
-var socket = new WebSocket("ws://localhost:8080/dartbot");
+var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
+//var socket = new WebSocket("ws://localhost:8080/dartbot");
 var getGid = getUrlVars()["gid"];
 var world = null;
 window.addEventListener("keyup", handleKeyboard, false);

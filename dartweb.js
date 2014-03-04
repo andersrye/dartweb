@@ -183,7 +183,7 @@ function drawWorld(world) {
 		insertInto(gid, div(gid+"-scores", "scores", ""));
 		insertInto(gid+"-players", div(gid+"-player"+p, "player", "plr") + div("_", "score", "Score") + "<div class=\"clear\"></div>");
 
-		for (var i=1;i<Math.max(longestPlayerHistory(game)+(game.players[game.currentplayer].history.length+1 == longestPlayerHistory(game) ? 1 : 0), 10);i++) {
+		for (var i=1;i<Math.max(longestPlayerHistory(game)+(game.currentplayer != null && game.players[game.currentplayer].history.length+1 == longestPlayerHistory(game) ? 1 : 0), 10);i++) {
 			insertInto(gid+"-scores", div("_", "throws", "R " + i));
 		}
 		insertInto(gid+"-scores", "<div class=\"clear\"></div>");

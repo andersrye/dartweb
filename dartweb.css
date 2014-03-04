@@ -12,7 +12,7 @@ a {
 	margin-bottom: 20px;
 	background-color: #eee;
 	border: 2px solid #ccc;
-	width: 603px;
+	width: 598px;
 	/*float:left;*/
 }
 .game-id {
@@ -27,7 +27,7 @@ a {
 	/*float: right;*/
 	display: inline-block;
 	font-size: 38pt;
-	width: 122px;
+	width: 124px;
 	height: 90px;
 	padding:5px
 	/*text-align: center;*/
@@ -49,7 +49,7 @@ a {
 .scores {
 	display: inline-block;
 	vertical-align: top;
-	width: 469px;
+	width: 464px;
 	/*height: 200px;*/
 	/*overflow: scroll;*/
 	overflow-y: hidden;
@@ -82,6 +82,7 @@ a {
 }
 .gameinfo {
 	vertical-align: top;
+	white-space: nowrap;
 }
 .cplayer {
 	text-align: center;
@@ -102,8 +103,8 @@ a {
 	text-align: center;
 	display: inline-block;
 	vertical-align: top;
-	margin-right: 7px;
-	margin-left: 7px;
+	margin-right: 4px;
+	margin-left: 4px;
 	padding: 5px;
 	height: 90px;
 	background-color: #ddd; 
