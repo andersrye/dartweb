@@ -239,6 +239,7 @@ function drawWorld(world) {
 		if(game.currentplayer != null) {
 			insertInto(gid, "<button class='left' onclick='nextPlayer(\"" + gid + "\", null)'>Next player</button>");
 			insertInto(gid, "<button class='right' onclick='addThrow()'>Random throw</button>");
+			insertInto(gid, "<button class='right' onclick='undo()'>Undo</button>");
 		}
 		insertInto(gid, "<div class=\"clear\"> </div>");
 		if(game.currentplayer == null && typeof(getGid) != 'undefined') {
@@ -279,6 +280,10 @@ function endGame(gid) {
 	if (confirm("Are you sure you want to upload and end the game? (" + gid + ")")) {
 	  socket.send('{"command" : "end", "gid" : "' + gid + '"}')
 	}
+}
+
+function undo() {
+	  socket.send('{"command" : "undo"}')
 }
 
 function newGame() {
