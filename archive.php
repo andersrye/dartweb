@@ -4,19 +4,19 @@
 <script type="text/javascript" src="dartweb.js"></script>
 
 <script>
-//var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
-var socket = new WebSocket("ws://localhost:8080/dartbot");
+var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
+//var socket = new WebSocket("ws://localhost:8080/dartbot");
 
 socket.onopen = function(event) {
 	socket.send('{"command" : "request", "game" : "archive"}');
 }
 
 socket.onmessage = function(event) {
-	var list = JSON.parse(event.data);
+	var list = JSON.parse(event.data).sort().reverse();
 	for (var l in list) {
 		console.log(list[l]);
 		var gid = list[l].split('.')[0];
-		insertInto("list", "<a href='index.html?gid=" + gid + "'>" + gid + "</a><br/>");
+		insertInto("list", "<a href='/?gid=" + gid + "'>" + gid + "</a><br/>");
 	}
 }
 </script>
