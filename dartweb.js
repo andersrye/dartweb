@@ -6,6 +6,11 @@ function getUrlVars() {
     return vars;
 }
 
+function shuffle(o){
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+};
+
 function div(id, className, content) {
 	return "<div id=\"" + id + "\" class=\"" + className + "\">" + content + "</div>";
 }
@@ -288,6 +293,9 @@ function undo() {
 
 function newGame() {
 	players = document.getElementById("playerbox").value.split(" ");
+	if(document.getElementById("shuffle").checked == true) {
+		players = shuffle(players);
+	}
 	var temp = "";
 	for(var p in players) {
 		temp += "\"" + players[p] + "\"";

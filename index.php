@@ -9,8 +9,8 @@ $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cu
 <link rel="stylesheet" type="text/css" href="dartweb.css">
 
 <script type="text/javascript">
-//var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
-var socket = new WebSocket("ws://localhost:8080/dartbot");
+var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
+//var socket = new WebSocket("ws://localhost:8080/dartbot");
 var getGid = getUrlVars()["gid"];
 var world = null;
 window.addEventListener("keyup", handleKeyboard, false);
@@ -51,7 +51,7 @@ socket.onopen = function(event) {
 </script>
 
 <div id="world" class="world">something is wrong, check the console</div>
-Players: <input id="playerbox" type="text" name="fname"/> <button onclick='newGame()'>Start new game</button> <a href="/remote">Remote</a> <a href="/archive.php">Archive</a>
+Players: <input id="playerbox" type="text" name="fname"/> <input type="checkbox" id="shuffle"> Shuffle? <button onclick='newGame()'>Start new game</button> <a href="/remote">Remote</a> <a href="/archive.php">Archive</a>
 
 <pre>
 Board monitor: <?php 
