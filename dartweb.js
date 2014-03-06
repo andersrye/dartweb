@@ -6,6 +6,11 @@ function getUrlVars() {
     return vars;
 }
 
+function shuffle(o){
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+};
+
 function div(id, className, content) {
 	return "<div id=\"" + id + "\" class=\"" + className + "\">" + content + "</div>";
 }
@@ -164,6 +169,7 @@ function formatStats(game) {
 }
 
 function drawWorld(world) {
+	console.log(world)
 	for (var gid in world) {
 		if (typeof(getGid) != 'undefined' && getGid != gid) continue;
 		var game = world[gid];
@@ -186,8 +192,10 @@ function drawWorld(world) {
 		}
 		insertInto(gid+"-scores", "<div class=\"clear\"></div>");
 
-		for (var p in game.players) {
+		for (var i in game.playerorder) {
+			var p = game.playerorder[i]
 			var player = game.players[p];
+			console.log(player);
 			var score = parseInt(player.score);
 			var currclass = ""
 			if (game.currentplayer == p) { 
@@ -286,6 +294,9 @@ function undo() {
 
 function newGame() {
 	players = document.getElementById("playerbox").value.split(" ");
+	if(document.getElementById("shuffle").checked == true) {
+		players = shuffle(players);
+	}
 	var temp = "";
 	for(var p in players) {
 		temp += "\"" + players[p] + "\"";

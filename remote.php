@@ -32,8 +32,12 @@ function nextPlayer() {
 .remoteButton {
 	height: 100%;
 	width: 100%;
-	font-size: 100%;
+	font-size: 150pt;
 }
+.remoteButton:active {
+	background-color: green;
+}
+
 </style>
 
 <button class="remoteButton" onclick='nextPlayer()'>NEXT</button>
