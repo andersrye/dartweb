@@ -51,7 +51,7 @@ socket.onopen = function(event) {
 </script>
 
 <div id="world" class="world">something is wrong, check the console</div>
-Players: <input id="playerbox" type="text" name="fname"/> <input type="checkbox" id="shuffle"> Shuffle? <button onclick='newGame()'>Start new game</button> <a href="/remote">Remote</a> <a href="/archive.php">Archive</a>
+Players: <input id="playerbox" type="text" name="fname"/> <input type="checkbox" id="shuffle"> Shuffle order? <button onclick='newGame()'>Start new game</button> <a href="/remote">Remote</a> <a href="/archive.php">Archive</a>
 
 <pre>
 Board monitor: <?php 
