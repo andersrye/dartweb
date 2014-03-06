@@ -112,17 +112,15 @@ function countMult(history, mult) {
 }
 
 function bestFinish(players) {
-	var temp = ["", 0];
+	var result = new Array();
 	for(var p in players) {
 		if(players[p].score == 0) {
 			var fnsh = totalScore(players[p].history[players[p].history.length-1]);
-			if (fnsh > temp[1]) {
-				temp[0] = p;
-				temp[1] = fnsh;
-			}
+			result.push([p, fnsh])
+
 		}
 	}
-	return temp;
+	return result.sort(function(a, b){return a[1]-b[1];});
 }
 function bestRound(players) {
 	var temp = ["", 0];
@@ -161,7 +159,7 @@ function formatStats(game) {
 	bestround = bestRound(game.players);
 	bestfinish = bestFinish(game.players);
 	temp += "<br/>Best round: " +  bestround[0] + " (" + bestround[1] + ")"
-	temp += "<br/>Best finish: " +  bestfinish[0] + " (" + bestfinish[1] + ")"
+	temp += "<br/>Best finish: " +  bestfinish[0][0] + " (" + bestfinish[0][1] + ")"
 	return temp
 }
 
