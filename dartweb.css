@@ -161,3 +161,18 @@ a {
 	height: 0px;
 	width: 100%;
 }
+.stat-pos, .stat-player, .stat-num {
+	display: inline-block;
+	width: 40px;
+	text-align: center;
+}
+.stat-frame {
+	vertical-align: top;
+	width: 120px;
+	display: inline-block;
+	margin: 0px 10px 10px 10px;
+}
+.stats {
+	width: 600px;
+	vertical-align: top;
+}

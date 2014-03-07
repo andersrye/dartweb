@@ -116,29 +116,57 @@ function countMult(history, mult) {
 	return total;
 }
 
-function bestFinish(players) {
+function bestFinish(game) {
 	var result = new Array();
-	for(var p in players) {
-		if(players[p].score == 0) {
-			var fnsh = totalScore(players[p].history[players[p].history.length-1]);
+	for(var p in game.players) {
+		if(game.players[p].score == 0) {
+			var fnsh = totalScore(game.players[p].history[game.players[p].history.length-1]);
 			result.push([p, fnsh])
 
 		}
 	}
-	return result.sort(function(a, b){return a[1]-b[1];});
+	return result.sort(function(a, b){return b[1]-a[1];});
 }
-function bestRound(players) {
-	var temp = ["", 0];
-	for(var p in players) {
-		for(var round in players[p].history) {
-			var rsc = totalScore(players[p].history[round])
-			if ( rsc > temp[1]) {
-				temp[0] = p;
-				temp[1] = rsc;
-			}
+
+function bestRound(history) {
+	var temp = 0;
+	for(var round in history) {
+		var rsc = totalScore(history[round])
+		if ( rsc > temp) {
+			temp = rsc;
 		}
 	}
-	return temp;
+	return temp
+}
+function hist(game, player) {
+	console.log(player)
+	console.log(game.currentplayer)
+	console.log(game)
+	return game.players[player].history.concat(player == game.currentplayer ? [game.currentthrows] : [])
+}
+function bestRounds(game) {
+	var result = new Array();
+	for(var p in game.players) {
+		var rsc = bestRound(hist(game, p));
+		result.push([p, rsc])
+	}
+	return result.sort(function(a, b){return b[1]-a[1];});
+}
+
+function mostMultipliers(game, mult) {
+	var result = new Array();
+	for(var p in game.players) {
+			result.push([p, countMult(hist(game, p), mult)])
+	}
+	return result.sort(function(a, b){return b[1]-a[1];});
+}
+
+function mostScores(game, score) {
+	var result = new Array();
+	for(var p in game.players) {
+			result.push([p, countScore(hist(game, p), score)])
+	}
+	return result.sort(function(a, b){return b[1]-a[1];});
 }
 
 function finalStandings(game) {
@@ -147,25 +175,36 @@ function finalStandings(game) {
 	for (var p in game.players) {
 		var pos = game.players[p].position
 		if(pos != null) {
-			temp[pos-1] = [p,0];
+			temp[pos-1] = [p, game.players[p].score];
 		} else {
-			rest.push([p,game.players[p].score])
+			rest.push([p, game.players[p].score - (p == game.currentplayer ? totalScore(game.currentthrows) : 0)])
 		}
 	}
 	return temp.concat(rest.sort(function(a, b){return a[1]-b[1];})); 
 }
 
-function formatStats(game) {
-	var temp = "Results: <br/>";
-	standings = finalStandings(game);
-	for (var i = 0; i<standings.length; i++) {
-		temp += (i+1) + ". " + standings[i][0] + "<br/>";
+function formatStat(title, stat) {
+	var temp = "";
+	temp += div("_", "stat-title", title)
+	for (var i = 0; i < stat.length; i++) {
+		temp += div("_", "stat-pos", (i+1))
+		temp += div("_", "stat-player", stat[i][0])
+		temp += stat[0].length > 1 ? div("_", "stat-num", stat[i][1]) : ""
+		temp += "<br/>"
 	}
-	bestround = bestRound(game.players);
-	bestfinish = bestFinish(game.players);
-	temp += "<br/>Best round: " +  bestround[0] + " (" + bestround[1] + ")"
-	temp += "<br/>Best finish: " +  bestfinish[0][0] + " (" + bestfinish[0][1] + ")"
-	return temp
+	return div("_", "stat-frame", temp)
+}
+
+function formatStats(game) {
+	var temp = ""
+	temp += formatStat("Standings", finalStandings(game));
+	temp += formatStat("Best Finish", bestFinish(game));
+	temp += formatStat("Best Round", bestRounds(game));
+	temp += formatStat("Most doubles", mostMultipliers(game, 2));
+	temp += formatStat("Most Triples", mostMultipliers(game, 3));
+	temp += formatStat("Most 20s", mostScores(game, 20)) ;
+	temp += formatStat("Most misses", mostScores(game, 0)) ;
+	return div("_", "stats", temp)
 }
 
 function drawWorld(world) {
@@ -249,7 +288,7 @@ function drawWorld(world) {
 		}
 		insertInto(gid, "<div class=\"clear\"> </div>");
 		if(game.currentplayer == null && typeof(getGid) != 'undefined') {
-			insertInto("world", div("stats", "stats", "<pre>" + formatStats(game) + "</pre>"))
+			insertInto("world", div("stats", "stats", formatStats(game)))
 		}
 		console.log(gid+"-scores");
 	}
