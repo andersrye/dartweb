@@ -287,7 +287,8 @@ function drawWorld(world) {
 			insertInto(gid, "<button class='right' onclick='undo()'>Undo</button>");
 		}
 		insertInto(gid, "<div class=\"clear\"> </div>");
-		if(game.currentplayer == null && typeof(getGid) != 'undefined') {
+		//if(game.currentplayer == null && typeof(getGid) != 'undefined') {
+		if(typeof(getGid) != 'undefined') {
 			insertInto("world", div("stats", "stats", formatStats(game)))
 		}
 		console.log(gid+"-scores");
