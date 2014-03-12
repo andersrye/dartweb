@@ -1,0 +1,51 @@
+a {
+	color: #000;
+}
+.world {
+	background-color: #FAF5D2;
+}
+
+.game {
+	background-color: #F6EDAC;
+	border-color: #722003;
+}
+.game-id {
+	background-color: #3F0403;
+}
+.remaining {
+	background-color: #722003;
+}
+.player {
+	background-color: #722003;
+}
+
+.player, .throws, .score{
+	border-color: #722003;
+}
+.cplayer {
+	background-color: #722003;
+}
+.cthrows {
+	background-color: #722003; 
+}
+.cthrow, .cthrow2 {
+	border-color: #444;
+}
+.cthrow2 {
+	border-color: #888;
+
+}
+.current {
+	background-color: #F37504;
+	opacity: 1.0;
+	font-weight: bold;
+}
+.currentthrows {
+	background-color: #3F0403;
+}
+.bust {
+	background-color: #e67;
+}
+.win {
+	background-color: #4b4;
+}

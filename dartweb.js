@@ -19,7 +19,7 @@ function insertInto(id, content) {
 	if (content == "") {
 		document.getElementById(id).innerHTML = content;
 	} else {
-		document.getElementById(id).innerHTML += content;
+		$("#" + id).append(content);
 	}
 }
 
@@ -139,9 +139,6 @@ function bestRound(history) {
 	return temp
 }
 function hist(game, player) {
-	console.log(player)
-	console.log(game.currentplayer)
-	console.log(game)
 	return game.players[player].history.concat(player == game.currentplayer ? [game.currentthrows] : [])
 }
 function bestRounds(game) {
@@ -187,9 +184,9 @@ function formatStat(title, stat) {
 	var temp = "";
 	temp += div("_", "stat-title", title)
 	for (var i = 0; i < stat.length; i++) {
-		temp += div("_", "stat-pos", (i+1))
-		temp += div("_", "stat-player", stat[i][0])
-		temp += stat[0].length > 1 ? div("_", "stat-num", stat[i][1]) : ""
+		temp += div("stat-pos-"+stat[i][0], "stat-pos", (i+1))
+		temp += div("stat-player-"+stat[i][0], "stat-player", stat[i][0])
+		temp += stat[0].length > 1 ? div("stat-num-"+stat[i][0], "stat-num", stat[i][1]) : ""
 		temp += "<br/>"
 	}
 	return div("_", "stat-frame", temp)
@@ -208,7 +205,6 @@ function formatStats(game) {
 }
 
 function drawWorld(world) {
-	console.log(world)
 	for (var gid in world) {
 		if (typeof(getGid) != 'undefined' && getGid != gid) continue;
 		var game = world[gid];
@@ -224,7 +220,7 @@ function drawWorld(world) {
 		}
 		insertInto(gid, div(gid+"-players", "players", ""));
 		insertInto(gid, div(gid+"-scores", "scores", ""));
-		insertInto(gid+"-players", div(gid+"-player"+p, "player", "plr") + div("_", "score", "Score") + "<div class=\"clear\"></div>");
+		insertInto(gid+"-players", div(gid+"-playername", "player", "plr") + div(gid+"-playerscore", "score", "Score") + "<div class=\"clear\"></div>");
 
 		for (var i=1;i<Math.max(longestPlayerHistory(game)+(game.currentplayer != null && game.players[game.currentplayer].history.length+1 == longestPlayerHistory(game) ? 1 : 0), 10);i++) {
 			insertInto(gid+"-scores", div("_", "throws", "R " + i));
@@ -234,14 +230,10 @@ function drawWorld(world) {
 		for (var i in game.playerorder) {
 			var p = game.playerorder[i]
 			var player = game.players[p];
-			console.log(player);
 			var score = parseInt(player.score);
 			var currclass = ""
-			if (game.currentplayer == p) { 
-				score -= totalScore(game.currentthrows);
-				currclass = " current";
-			};
-			insertInto(gid+"-players", div(gid+"-player"+p, 'player'.concat(currclass), "<a href='#"+gid+"' onclick='nextPlayer(\"" + gid + "\", \"" + p + "\")'>" + p + "</a>") + div("_", "score".concat(currclass), score));
+			insertInto(gid+"-players", div(gid+"-playername-"+p, 'player', "<a href='#"+gid+"' onclick='nextPlayer(\"" + gid + "\", \"" + p + "\")'>" + p + "</a>") + div(gid+"-playerscore-"+p, "score".concat(currclass), score - (p == game.currentplayer ? totalScore(game.currentthrows) : 0)));
+			
 			var currscore = 0
 			insertInto(gid+"-scores", div(gid+"-history-"+p, "history", ""));
 			if(player.history.length == 0 && p != game.currentplayer) {
@@ -259,18 +251,22 @@ function drawWorld(world) {
 				insertInto(gid+"-history-"+p, div("_", "throws".concat(currclass+class2), totalScore(player.history[r]) + "<br>"));
 			}
 			insertInto(gid+"-scores", "<div class=\"clear\"></div>");
-			
+			if (game.currentplayer == p) { 
+				score -= totalScore(game.currentthrows);
+				$("#"+gid+"-history-"+p+" .throws, #"+ gid+"-playername-"+p+", #" + gid+"-playerscore-"+p).addClass("current");
+			};
 
 			if (game.currentplayer == p) {
 				var class3 = "";
 				if (score == 0) {
 					class3=" win";
 					document.getElementById(gid+"-remaining").className += " win"; 
-					document.getElementById(gid+"-remainingscore").innerHTML = "WIN"; 
+					// document.getElementById(gid+"-remainingscore").innerHTML = "WIN"; 
 				} else if (score < 0) {
 					class3=" bust";
 					document.getElementById(gid+"-remaining").className += " bust";
 					document.getElementById(gid+"-remainingscore").innerHTML = "BUST"; 
+					
 				}
 				insertInto(gid+"-history-"+p, div(gid+"-currentthrow", "throws currentthrows current".concat(class3), totalScore(game.currentthrows) + "<br>"));
 				
@@ -278,9 +274,11 @@ function drawWorld(world) {
 			insertInto(gid, "<div class=\"clear\"></div>");
 
 
+
 		}
 		insertInto(gid, "<button class='right' onclick='endGame(\"" + gid + "\")'>End game</button>");
 		insertInto(gid, "<button class='right' onclick='deleteGame(\"" + gid + "\")'>Delete game</button>");
+
 		if(game.currentplayer != null) {
 			insertInto(gid, "<button class='left' onclick='nextPlayer(\"" + gid + "\", null)'>Next player</button>");
 			insertInto(gid, "<button class='right' onclick='addThrow()'>Random throw</button>");
@@ -289,16 +287,41 @@ function drawWorld(world) {
 		insertInto(gid, "<div class=\"clear\"> </div>");
 		//if(game.currentplayer == null && typeof(getGid) != 'undefined') {
 		if(typeof(getGid) != 'undefined') {
-			insertInto("world", div("stats", "stats", formatStats(game)))
+			insertInto("world", formatStats(game))
 		}
-		console.log(gid+"-scores");
+		$("#stat-pos-"+game.currentplayer+", #stat-player-"+game.currentplayer+", #stat-num-"+game.currentplayer).addClass("current");
+		
+		if(typeof(getGid) != 'undefined' && game.currentthrows.length > 0) {
+			if(game.currentthrows[game.currentthrows.length-1].score == 20 && game.currentthrows[game.currentthrows.length-1].multiplier == 3 ) {
+				showMessage(gid, "TRIPLE 20!", "good", 800);
+			}
+			else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) == 0) {
+				showMessage(gid, "WINNER!", "good", 4000);
+
+			}else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) < 0) {
+				showMessage(gid, "BUST!", "bad", 1500);
+
+			} else if(game.currentplayer == "bno" && game.currentthrows[game.currentthrows.length-1].score == 0) {
+				showMessage(gid, "HAHA!", "bad", 500);
+			}
+
+		}  
+
+		
 	}
 	var scoreelements = document.getElementsByClassName("scores");
 	for (var e in  scoreelements) {
 		scoreelements[e].scrollLeft = scoreelements[e].scrollWidth;	
 	}
-}
 
+}
+function showMessage(gid, message, className, duration) {
+	$("#message").clone().appendTo($("#"+gid));
+	$("#message").addClass(className);
+	$("#message-text").append(message);
+	$("#message").show( "bounce", 80).delay(duration).hide( "puff", 200);
+
+}
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
