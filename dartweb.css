@@ -167,16 +167,29 @@ a {
 }
 .stat-pos, .stat-player, .stat-num {
 	display: inline-block;
-	width: 40px;
-	text-align: center;
+	border-bottom: 1px solid #ccc;
+}
+.stat-pos {
+	width: 18%;
+	padding-left: 2%;
+}
+.stat-player {
+	width:  30%;
+}
+.stat-num {
+	width: 48%;
+	text-align: right;
+	padding-right: 2%;
 }
 .stat-frame {
 	vertical-align: top;
-	width: 23%;
+	width: 21%;
 	display: inline-block;
-	margin: 0px 1% 6% 1%;
+	margin: 7px 2% 13px 2%;
 }
 .stats {
+	background-color: #eee;
+	border: 2px solid #ccc;
 	width: 600px;
 	vertical-align: top;
 }

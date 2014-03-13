@@ -306,7 +306,7 @@ function drawWorld(world) {
 				showMessage(gid, msgs[pos], "good", 5000);
 
 			}else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) < 0) {
-				showMessage(gid, "BUST!", "bad", 200);
+				showMessage(gid, "BUST!", "bad", 2000);
 
 			} else if(game.currentplayer == "bno" && game.currentthrows[game.currentthrows.length-1].score == 0) {
 				showMessage(gid, "HAHA!", "bad", 700);
