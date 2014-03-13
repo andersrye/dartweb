@@ -17,7 +17,7 @@ $ip = shell_exec("ifconfig | grep -v 'wlan0:' | grep -A 1 'wlan0' | tail -1 | cu
 	<script type="text/javascript">
 
 //var socket = new WebSocket("ws://<?php print trim($ip); ?>:8080/dartbot");
-var socket = new WebSocket("ws://localhost:4440/dartbot");
+var socket = new WebSocket("ws://192.168.10.130:8080/dartbot");
 
 var getGid = getUrlVars()["gid"];
 var world = null;
@@ -51,6 +51,7 @@ socket.onmessage = function(event) {
 	insertInto("world", "");
 
 	drawWorld(world);
+	console.log(world);
 }
 
 socket.onopen = function(event) {

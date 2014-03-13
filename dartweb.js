@@ -1,14 +1,14 @@
 function getUrlVars() {
-    var vars = {};
-    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-        vars[key] = value;
-    });
-    return vars;
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		vars[key] = value;
+	});
+	return vars;
 }
 
 function shuffle(o){
-    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
+	for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+		return o;
 };
 
 function div(id, className, content) {
@@ -34,31 +34,25 @@ function removeNull(array) {
 }
 
 var merge = function() {
-    var destination = {},
-        sources = [].slice.call( arguments, 0 );
-    sources.forEach(function( source ) {
-        var prop;
-        for ( prop in source ) {
-            if ( prop in destination && Array.isArray( destination[ prop ] ) ) {
-                // Concat Arrays
-                if(source[prop] == null) {
-                	destination[prop] = [];
-                } else {
-                	destination[ prop ] = removeNull(destination[ prop ].concat( source[ prop ] ));
-                }
-                
-            } else if ( prop in destination && typeof destination[ prop ] === "object" ) {
-                // Merge Objects
-                destination[ prop ] = merge( destination[ prop ], source[ prop ] );
-                
-            } else {
-                // Set new values
-                destination[ prop ] = source[ prop ];
-                
-            }
-        }
-    });
-    return destination;
+	var destination = {},
+	sources = [].slice.call( arguments, 0 );
+	sources.forEach(function( source ) {
+		var prop;
+		for ( prop in source ) {
+			if ( prop in destination && Array.isArray( destination[ prop ] ) ) {
+				if(source[prop] == null) {
+					destination[prop] = [];
+				} else {
+					destination[ prop ] = removeNull(destination[ prop ].concat( source[ prop ] ));
+				}
+			} else if ( prop in destination && typeof destination[ prop ] === "object" && destination[prop] != null) {
+				destination[ prop ] = merge( destination[ prop ], source[ prop ] );
+			} else {
+				destination[ prop ] = source[ prop ];
+			}
+		}
+	});
+	return destination;
 };
 
 function formatThrows(thrws) {
@@ -69,7 +63,7 @@ function formatThrows(thrws) {
 		temp += div("_", "cthrow", mlt + thrws[t].score);
 	}
 	for (var i = 0; i<3-thrws.length;i++) temp += div("_", "cthrow2", "");
-	return temp;
+		return temp;
 }
 
 function totalScore(thrws) {
@@ -153,7 +147,7 @@ function bestRounds(game) {
 function mostMultipliers(game, mult) {
 	var result = new Array();
 	for(var p in game.players) {
-			result.push([p, countMult(hist(game, p), mult)])
+		result.push([p, countMult(hist(game, p), mult)])
 	}
 	return result.sort(function(a, b){return b[1]-a[1];});
 }
@@ -161,7 +155,7 @@ function mostMultipliers(game, mult) {
 function mostScores(game, score) {
 	var result = new Array();
 	for(var p in game.players) {
-			result.push([p, countScore(hist(game, p), score)])
+		result.push([p, countScore(hist(game, p), score)])
 	}
 	return result.sort(function(a, b){return b[1]-a[1];});
 }
@@ -177,6 +171,7 @@ function finalStandings(game) {
 			rest.push([p, game.players[p].score - (p == game.currentplayer ? totalScore(game.currentthrows) : 0)])
 		}
 	}
+	console.log(temp);
 	return temp.concat(rest.sort(function(a, b){return a[1]-b[1];})); 
 }
 
@@ -286,23 +281,35 @@ function drawWorld(world) {
 		}
 		insertInto(gid, "<div class=\"clear\"> </div>");
 		//if(game.currentplayer == null && typeof(getGid) != 'undefined') {
-		if(typeof(getGid) != 'undefined') {
-			insertInto("world", formatStats(game))
-		}
-		$("#stat-pos-"+game.currentplayer+", #stat-player-"+game.currentplayer+", #stat-num-"+game.currentplayer).addClass("current");
-		
-		if(typeof(getGid) != 'undefined' && game.currentthrows.length > 0) {
-			if(game.currentthrows[game.currentthrows.length-1].score == 20 && game.currentthrows[game.currentthrows.length-1].multiplier == 3 ) {
-				showMessage(gid, "TRIPLE 20!", "good", 800);
+			if(typeof(getGid) != 'undefined') {
+				insertInto("world", formatStats(game))
 			}
-			else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) == 0) {
-				showMessage(gid, "WINNER!", "good", 4000);
+			$("#stat-pos-"+game.currentplayer+", #stat-player-"+game.currentplayer+", #stat-num-"+game.currentplayer).addClass("current");
+
+			if(typeof(getGid) != 'undefined' && game.currentthrows.length > 0) {
+				if(game.currentthrows[game.currentthrows.length-1].score == 20 && game.currentthrows[game.currentthrows.length-1].multiplier == 3 ) {
+					showMessage(gid, "TRIPLE 20!", "good", 1200);
+				}
+				else if(game.currentthrows[game.currentthrows.length-1].score == 19 && game.currentthrows[game.currentthrows.length-1].multiplier == 3 ) {
+					showMessage(gid, "TRIPLE 19!", "good", 1200);
+				}
+				else if(game.currentthrows[game.currentthrows.length-1].score == 25 && game.currentthrows[game.currentthrows.length-1].multiplier == 2 ) {
+					showMessage(gid, "BULLSEYE!", "good", 1200);
+				}
+				else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) == 0) {
+					msgs = ["WINNER!", "2ND PLACE", "3rd place", "4th place", "5th place", "7th place", "8th place"];
+					var pos = 0;
+					for(var i = 0; i < finalStandings(game).length; i++){
+						if(finalStandings(game)[i][0] == game.currentplayer) {pos = i}
+					}
+				console.log(pos)
+				showMessage(gid, msgs[pos], "good", 5000);
 
 			}else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) < 0) {
-				showMessage(gid, "BUST!", "bad", 1500);
+				showMessage(gid, "BUST!", "bad", 200);
 
 			} else if(game.currentplayer == "bno" && game.currentthrows[game.currentthrows.length-1].score == 0) {
-				showMessage(gid, "HAHA!", "bad", 500);
+				showMessage(gid, "HAHA!", "bad", 700);
 			}
 
 		}  
@@ -323,7 +330,7 @@ function showMessage(gid, message, className, duration) {
 
 }
 function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function requestData() {
@@ -341,18 +348,18 @@ function nextPlayer(gid, plr) {
 
 function deleteGame(gid) {
 	if (confirm("Are you sure you want to delete the game? (" + gid + ")")) {
-	  socket.send('{"command" : "delete", "gid" : "' + gid + '"}')
+		socket.send('{"command" : "delete", "gid" : "' + gid + '"}')
 	}
 }
 
 function endGame(gid) {
 	if (confirm("Are you sure you want to upload and end the game? (" + gid + ")")) {
-	  socket.send('{"command" : "end", "gid" : "' + gid + '"}')
+		socket.send('{"command" : "end", "gid" : "' + gid + '"}')
 	}
 }
 
 function undo() {
-	  socket.send('{"command" : "undo"}')
+	socket.send('{"command" : "undo"}')
 }
 
 function newGame() {
