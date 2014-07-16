@@ -287,34 +287,32 @@ function drawWorld(world) {
 			$("#stat-pos-"+game.currentplayer+", #stat-player-"+game.currentplayer+", #stat-num-"+game.currentplayer).addClass("current");
 
 			if(typeof(getGid) != 'undefined' && game.currentthrows.length > 0) {
-				if(game.currentthrows[game.currentthrows.length-1].score == 20 && game.currentthrows[game.currentthrows.length-1].multiplier == 3 ) {
+				var lastThrow = game.currentthrows[game.currentthrows.length-1];
+				if(lastThrow.score == 20 && lastThrow.multiplier == 3 ) {
 					showMessage(gid, "TRIPLE 20!", "good", 1200);
 				}
-				else if(game.currentthrows[game.currentthrows.length-1].score == 19 && game.currentthrows[game.currentthrows.length-1].multiplier == 3 ) {
+				else if(lastThrow.score == 19 && lastThrow.multiplier == 3 ) {
 					showMessage(gid, "TRIPLE 19!", "good", 1200);
 				}
-				else if(game.currentthrows[game.currentthrows.length-1].score == 25 && game.currentthrows[game.currentthrows.length-1].multiplier == 2 ) {
+				else if(lastThrow.score == 25 && lastThrow.multiplier == 2 ) {
 					showMessage(gid, "BULLSEYE!", "good", 1200);
 				}
 				else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) == 0) {
 					msgs = ["WINNER!", "2ND PLACE", "3rd place", "4th place", "5th place", "7th place", "8th place"];
 					var pos = 0;
-					for(var i = 0; i < finalStandings(game).length; i++){
-						if(finalStandings(game)[i][0] == game.currentplayer) {pos = i}
+					var s = finalStandings(game);
+					for(var i = 0; i < s.length; i++){
+						if(s[i][0] == game.currentplayer) {pos = i}
 					}
-				console.log(pos)
 				showMessage(gid, msgs[pos], "good", 5000);
-
-			}else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) < 0) {
+			}
+			else if(parseInt(game.players[game.currentplayer].score) - totalScore(game.currentthrows) < 0) {
 				showMessage(gid, "BUST!", "bad", 2000);
-
-			} else if(game.currentplayer == "bno" && game.currentthrows[game.currentthrows.length-1].score == 0) {
+			}
+			else if(game.currentplayer == "bno" && lastThrow.score == 0) {
 				showMessage(gid, "HAHA!", "bad", 700);
 			}
-
 		}  
-
-		
 	}
 	var scoreelements = document.getElementsByClassName("scores");
 	for (var e in  scoreelements) {
