@@ -94,7 +94,7 @@ function countScore(history, score) {
 	var total = 0;
 	for(var r in history) {
 		for (var t in history[r]) {
-			if(history[r][t].score == score) total += 1;
+			if(history[r][t].score == score) total += 1*history[r][t].multiplier;
 		}
 	}
 	return total;
@@ -109,6 +109,17 @@ function countMult(history, mult) {
 	}
 	return total;
 }
+
+function count50s(history) {
+	var total = 0;
+	for(var r in history) {
+		for (var t in history[r]) {
+			if(history[r][t].score * history[r][t].multiplier >= 50) total += 1;
+		}
+	}
+	return total;
+}
+
 
 function bestFinish(game) {
 	var result = new Array();
@@ -160,6 +171,14 @@ function mostScores(game, score) {
 	return result.sort(function(a, b){return b[1]-a[1];});
 }
 
+function most50s(game) {
+	var result = new Array();
+	for(var p in game.players) {
+		result.push([p, count50s(hist(game, p))])
+	}
+	return result.sort(function(a, b){return b[1]-a[1];});
+}
+
 function finalStandings(game) {
 	var temp = new Array();
 	var rest = new Array();
@@ -192,9 +211,11 @@ function formatStats(game) {
 	temp += formatStat("Standings", finalStandings(game));
 	temp += formatStat("Best Finish", bestFinish(game));
 	temp += formatStat("Best Round", bestRounds(game));
-	temp += formatStat("Most doubles", mostMultipliers(game, 2));
+	//temp += formatStat("Most doubles", mostMultipliers(game, 2));
 	temp += formatStat("Most Triples", mostMultipliers(game, 3));
 	temp += formatStat("Most 20s", mostScores(game, 20)) ;
+	temp += formatStat("Most 50+ throws", most50s(game)) ;
+	temp += formatStat("Most 1s", mostScores(game, 1)) ;
 	temp += formatStat("Most misses", mostScores(game, 0)) ;
 	return div("_", "stats", temp)
 }
