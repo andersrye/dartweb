@@ -143,6 +143,17 @@ function bestRound(history) {
 	}
 	return temp
 }
+
+function worstRound(history) {
+	var temp = 999;
+	for(var round in history) {
+		var rsc = totalScore(history[round])
+		if ( rsc < temp && history[round].length == 3) {
+			temp = rsc;
+		}
+	}
+	return temp
+}
 function hist(game, player) {
 	return game.players[player].history.concat(player == game.currentplayer ? [game.currentthrows] : [])
 }
@@ -153,6 +164,14 @@ function bestRounds(game) {
 		result.push([p, rsc])
 	}
 	return result.sort(function(a, b){return b[1]-a[1];});
+}
+function worstRounds(game) {
+	var result = new Array();
+	for(var p in game.players) {
+		var rsc = worstRound(hist(game, p));
+		result.push([p, rsc])
+	}
+	return result.sort(function(a, b){return a[1]-b[1];});
 }
 
 function mostMultipliers(game, mult) {
@@ -209,8 +228,9 @@ function formatStat(title, stat) {
 function formatStats(game) {
 	var temp = ""
 	temp += formatStat("Standings", finalStandings(game));
-	temp += formatStat("Best Finish", bestFinish(game));
+	//temp += formatStat("Best Finish", bestFinish(game));
 	temp += formatStat("Best Round", bestRounds(game));
+	temp += formatStat("Worst Round", worstRounds(game));
 	//temp += formatStat("Most doubles", mostMultipliers(game, 2));
 	temp += formatStat("Most Triples", mostMultipliers(game, 3));
 	temp += formatStat("Most 20s", mostScores(game, 20)) ;
@@ -304,6 +324,8 @@ function drawWorld(world) {
 		//if(game.currentplayer == null && typeof(getGid) != 'undefined') {
 			if(typeof(getGid) != 'undefined') {
 				insertInto("world", formatStats(game))
+				insertInto("world", div(gid+"-board", "board" , ""));
+				//insertInto(gid+"-board", "<img style='position:relative; left:230; top:220; height:50px; width 50px;opacity:1'src='x.png'/>");
 			}
 			$("#stat-pos-"+game.currentplayer+", #stat-player-"+game.currentplayer+", #stat-num-"+game.currentplayer).addClass("current");
 
